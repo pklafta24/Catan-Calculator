@@ -120,20 +120,15 @@ export default function App() {
     });
   };
 
-  const handleCardCountChange = (e) => {
-    const value = parseInt(e.target.value, 10);
-    if (!isNaN(value) && value >= 0) setCardCount(value);
-    else if (e.target.value === '') setCardCount(0);
-  };
-  
-  const getRiskLevel = (prob) => {
-    if (prob > 0.75) return { text: 'Safe Forest', color: COLORS.wood };
-    if (prob > 0.50) return { text: 'Open Plains', color: COLORS.wheat };
-    if (prob > 0.25) return { text: 'Mountain Pass', color: COLORS.brick };
-    return { text: 'Desert Storm', color: '#b91c1c' };
+  const updateCardCount = (val) => {
+    setCardCount(prev => Math.max(0, prev + val));
   };
 
-  const risk = getRiskLevel(metrics.survivalProbability);
+  const handleCardCountChange = (e) => {
+    const value = parseInt(e.target.value, 10);
+    if (!isNaN(value)) setCardCount(Math.max(0, value));
+    else if (e.target.value === '') setCardCount(0);
+  };
 
   return (
     <div className="text-white min-h-screen font-sans p-3 sm:p-8 flex flex-col items-center select-none" style={{ backgroundColor: COLORS.darker }}>
@@ -141,7 +136,7 @@ export default function App() {
         
         {/* Calculator Section */}
         <header className="text-center mb-6 sm:mb-10">
-          <h1 className="text-3xl sm:text-5xl font-bold mb-1 px-2" style={{ color: COLORS.wood }}>Catan Strategic Calculator</h1>
+          <h1 className="text-4xl sm:text-6xl font-bold mb-1 px-2" style={{ color: COLORS.wood }}>CatanCalculator.io</h1>
           <p className="text-sm sm:text-lg opacity-70">Will you survive the next full round?</p>
         </header>
 
@@ -151,16 +146,28 @@ export default function App() {
             <h2 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6 border-b pb-2" style={{ borderColor: COLORS.ore }}>Your Inventory</h2>
             <div className="mb-6">
               <label htmlFor="card-count" className="block text-md sm:text-lg font-medium text-gray-300 mb-2">Cards in Hand</label>
-              <input 
-                id="card-count" 
-                type="number" 
-                inputMode="numeric"
-                value={cardCount} 
-                onChange={handleCardCountChange} 
-                className="w-full p-4 bg-gray-900 border border-gray-600 rounded-lg text-white text-center text-2xl focus:ring-2 focus:outline-none" 
-                style={{ borderColor: COLORS.ore }} 
-                min="0"
-              />
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => updateCardCount(-1)}
+                  className="w-12 h-14 rounded-lg bg-gray-700 hover:bg-gray-600 active:scale-95 flex items-center justify-center font-bold text-2xl transition-all"
+                  style={{ border: `1px solid ${COLORS.ore}` }}
+                >-</button>
+                <input 
+                  id="card-count" 
+                  type="number" 
+                  inputMode="numeric"
+                  value={cardCount} 
+                  onChange={handleCardCountChange} 
+                  className="flex-1 h-14 bg-gray-900 border border-gray-600 rounded-lg text-white text-center text-3xl font-bold focus:ring-2 focus:outline-none" 
+                  style={{ borderColor: COLORS.ore }} 
+                  min="0"
+                />
+                <button 
+                  onClick={() => updateCardCount(1)}
+                  className="w-12 h-14 rounded-lg bg-gray-700 hover:bg-gray-600 active:scale-95 flex items-center justify-center font-bold text-2xl transition-all"
+                  style={{ border: `1px solid ${COLORS.ore}` }}
+                >+</button>
+              </div>
             </div>
             <div className="flex-grow">
               <h3 className="text-md sm:text-lg font-medium text-gray-300 mb-2">Active Production:</h3>
@@ -184,15 +191,14 @@ export default function App() {
                 <div className="flex flex-col sm:flex-row justify-around items-center">
                     <div className="w-full sm:w-1/2 p-2 sm:p-4">
                         <h2 className="text-md sm:text-xl opacity-70 mb-1">Survival Chance</h2>
-                        <div className="text-5xl sm:text-6xl font-bold mb-2" style={{ color: COLORS.wheat }}>
+                        <div className="text-6xl sm:text-7xl font-bold mb-2" style={{ color: COLORS.wheat }}>
                           {(metrics.survivalProbability * 100).toFixed(1)}%
                         </div>
-                        <div className="text-xl sm:text-2xl font-semibold" style={{ color: risk.color }}>{risk.text}</div>
                     </div>
                     <div className="w-full sm:w-px h-px sm:h-32 bg-gray-700 my-4 sm:my-0"></div>
                     <div className="w-full sm:w-1/2 p-2 sm:p-4">
                          <h2 className="text-md sm:text-xl opacity-70 mb-1">Expected Resources</h2>
-                        <div className="text-5xl sm:text-6xl font-bold mb-2" style={{ color: COLORS.wheat }}>
+                        <div className="text-6xl sm:text-7xl font-bold mb-2" style={{ color: COLORS.wheat }}>
                           {metrics.expectedCards.toFixed(2)}
                         </div>
                         <p className="text-gray-500 text-xs sm:text-sm">(If you don't bust)</p>
@@ -221,19 +227,21 @@ export default function App() {
         <div className="max-w-4xl mx-auto bg-gray-800/30 p-6 sm:p-12 rounded-2xl border border-gray-700 shadow-xl leading-relaxed mb-12">
           <h1 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 border-b pb-4" style={{ color: COLORS.wood }}>Thesis, Instructions, and Methodology</h1>
           
-          <section className="mb-10">
-            <h2 className="text-lg sm:text-xl font-bold mb-3" style={{ color: COLORS.wheat }}>I. Thesis: The Cost of Heuristic Risk Aversion</h2>
-            <p className="text-gray-300 mb-4 text-sm sm:text-lg">
-              In the competitive environment of <i>Settlers of Catan</i>, players frequently exhibit a systematic cognitive bias: the overestimation of "bust risk." This research posits that for a player starting with fewer than 8 cards, a "bust" is a complex compound event. By quantifying these paths, we demonstrate that <b>aggressive resource retention is frequently the mathematically dominant strategy.</b>
+          {/* I. Thesis */}
+          <section className="mb-12">
+            <h2 className="text-lg sm:text-xl font-bold mb-4" style={{ color: COLORS.wheat }}>I. Thesis</h2>
+            <p className="text-gray-300 text-sm sm:text-lg">
+              In the competitive environment of Settlers of Catan, players frequently exhibit a systematic cognitive bias: the overestimation of "bust risk" (rolling a 7 with 8+ cards). The hypothesis is that for a player starting a round with fewer than 8 cards, a "bust" is a complex compound event requiring a specific sequence of independent rolls. As such, the average player overstates the probability of its occurrence and does not “risk it” enough. This calculator hopes to quantifying these paths and demonstrate that aggressive resource retention is frequently the mathematically dominant strategy.
             </p>
           </section>
 
-          <section className="mb-10">
-            <h2 className="text-lg sm:text-xl font-bold mb-3" style={{ color: COLORS.wheat }}>II. Instructions for Use</h2>
+          {/* II. Instructions */}
+          <section className="mb-12">
+            <h2 className="text-lg sm:text-xl font-bold mb-4" style={{ color: COLORS.wheat }}>II. Instructions for Use</h2>
             <div className="text-gray-300 space-y-4 text-sm sm:text-lg">
               <div className="flex gap-4">
                 <span className="font-bold text-lg" style={{ color: COLORS.wood }}>1.</span>
-                <p><b>Inventory Input:</b> Enter your current hand size at the beginning of the round.</p>
+                <p><b>Inventory Input:</b> Enter your current hand size at the beginning of the round using the +/- buttons.</p>
               </div>
               <div className="flex gap-4">
                 <span className="font-bold text-lg" style={{ color: COLORS.wood }}>2.</span>
@@ -246,29 +254,30 @@ export default function App() {
             </div>
           </section>
 
-          <section className="mb-10">
-            <h2 className="text-lg sm:text-xl font-bold mb-3" style={{ color: COLORS.wheat }}>III. Methodology and Game Theory</h2>
+          {/* III. Methodology */}
+          <section className="mb-8">
+            <h2 className="text-lg sm:text-xl font-bold mb-4" style={{ color: COLORS.wheat }}>III. Methodology and Game Theory</h2>
             <div className="text-gray-300 space-y-6 text-sm sm:text-base">
               <p>The calculator utilizes a <b>Recursive State-Transition Model</b> to determine probability across a standard four-player round.</p>
               
-              <div className="bg-black/20 p-4 rounded border border-gray-700">
-                <h3 className="font-bold mb-2 text-white">The Compound Event Analysis</h3>
+              <div className="bg-black/20 p-5 sm:p-6 rounded-xl border border-gray-700 overflow-hidden">
+                <h3 className="font-bold mb-4 text-white text-lg">The Compound Event Analysis</h3>
                 <p className="mb-4 italic">For a player starting with S &lt; 8, a bust requires two distinct events:</p>
-                <ul className="list-disc list-inside space-y-1 mb-4">
+                <ul className="list-disc list-inside space-y-2 mb-6">
                   <li><b>Accumulation:</b> Rolls must hit your hexes to reach S ≥ 8.</li>
                   <li><b>The Strike:</b> A 7 must be rolled <i>after</i> reaching that state.</li>
                 </ul>
-                <div className="text-center font-mono py-2" style={{ color: COLORS.wheat }}>
+                <div className="text-center font-mono py-4 bg-black/40 rounded-lg text-lg" style={{ color: COLORS.wheat }}>
                   P(A ∩ B) = P(Accumulate) × P(7)
                 </div>
-                <p className="mt-2 text-xs sm:text-sm">Since we multiply these independent probabilities, the result is exponentially lower than players often "feel" during gameplay.</p>
+                <p className="mt-4 text-xs sm:text-sm opacity-80">Since we multiply these independent probabilities, the result is exponentially lower than players often "feel" during gameplay. This temporal friction shields the player during the transition phase.</p>
               </div>
             </div>
           </section>
         </div>
         
         <footer className="text-center text-gray-500 text-xs sm:text-sm pb-10">
-            <p>© 2024 Catan Strategic Institute. Built for the long-term strategist.</p>
+            <p>© 2026 Catan Strategic Institute. Built for the long-term strategist.</p>
         </footer>
       </div>
     </div>
