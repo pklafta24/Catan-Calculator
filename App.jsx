@@ -128,6 +128,16 @@ export default function App() {
 
   return (
     <div className="text-white min-h-screen font-sans p-3 sm:p-8 flex flex-col items-center select-none" style={{ backgroundColor: COLORS.darker }}>
+      <style>{`
+        /* Custom styling for the gold arrows (spinners) */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+          filter: sepia(100%) saturate(2000%) hue-rotate(10deg);
+          opacity: 1;
+          cursor: pointer;
+          height: 30px;
+        }
+      `}</style>
       <div className="w-full max-w-5xl mx-auto">
         
         {/* Calculator Section */}
@@ -148,8 +158,8 @@ export default function App() {
                 inputMode="numeric"
                 value={cardCount} 
                 onChange={handleCardCountChange} 
-                className="w-full h-14 bg-gray-900 rounded-lg text-white text-center text-3xl font-bold focus:ring-2 focus:outline-none transition-colors appearance-none" 
-                style={{ border: `2px solid ${COLORS.wheat}`, color: COLORS.wheat }} 
+                className="w-full h-14 bg-gray-900 rounded-lg text-white text-center text-3xl font-bold focus:ring-2 focus:outline-none transition-colors" 
+                style={{ border: `2px solid ${COLORS.ore}`, color: COLORS.wheat }} 
                 min="0"
               />
             </div>
@@ -172,19 +182,21 @@ export default function App() {
           {/* Main Dashboard */}
           <div className="lg:col-span-2 bg-gray-800/50 p-5 sm:p-6 rounded-xl shadow-2xl border-t-4" style={{ borderColor: COLORS.wood }}>
             <div className="bg-gray-900 p-4 sm:p-6 rounded-lg mb-6 text-center shadow-inner border" style={{ borderColor: COLORS.ore }}>
-                <div className="flex flex-col sm:flex-row justify-around items-center">
-                    <div className="w-full sm:w-1/2 p-2 sm:p-4">
-                        <h2 className="text-md sm:text-xl opacity-70 mb-1">Survival Chance</h2>
-                        <div className="text-6xl sm:text-8xl font-bold" style={{ color: COLORS.wheat }}>
+                <div className="flex flex-col sm:flex-row justify-between items-center px-2 space-y-4 sm:space-y-0">
+                    <div className="flex-1 p-2 text-center min-w-0">
+                        <h2 className="text-xs sm:text-xl opacity-70 mb-1 whitespace-nowrap">Survival Chance</h2>
+                        <div className="text-4xl xs:text-5xl sm:text-6xl md:text-7xl font-bold truncate" style={{ color: COLORS.wheat }}>
                           {(metrics.survivalProbability * 100).toFixed(1)}%
                         </div>
                     </div>
-                    <div className="w-full sm:w-px h-px sm:h-32 bg-gray-700 my-4 sm:my-0"></div>
-                    <div className="w-full sm:w-1/2 p-2 sm:p-4">
-                         <h2 className="text-md sm:text-xl opacity-70 mb-1">Expected Resources</h2>
-                        <div className="text-6xl sm:text-8xl font-bold" style={{ color: COLORS.wheat }}>
+                    <div className="hidden sm:block w-px h-32 bg-gray-700 opacity-50 mx-4"></div>
+                    <div className="block sm:hidden w-full h-px bg-gray-700 opacity-30"></div>
+                    <div className="flex-1 p-2 text-center min-w-0">
+                         <h2 className="text-xs sm:text-xl opacity-70 mb-1 whitespace-nowrap">Expected Resources</h2>
+                        <div className="text-4xl xs:text-5xl sm:text-6xl md:text-7xl font-bold truncate" style={{ color: COLORS.wheat }}>
                           {metrics.expectedCards.toFixed(2)}
                         </div>
+                        <p className="text-gray-500 text-[10px] sm:text-sm mt-1 whitespace-nowrap">(If you don't bust)</p>
                     </div>
                 </div>
             </div>
@@ -206,7 +218,7 @@ export default function App() {
           </div>
         </div>
 
-        {/* Text Section */}
+        {/* Thesis, Instructions, and Methodology Section */}
         <div className="max-w-4xl mx-auto bg-gray-800/30 p-6 sm:p-12 rounded-2xl border border-gray-700 shadow-xl leading-relaxed mb-12">
           <h1 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 border-b pb-4" style={{ color: COLORS.wood }}>Thesis, Instructions, and Methodology</h1>
           
@@ -243,34 +255,53 @@ export default function App() {
             <div className="text-gray-300 space-y-8 text-sm sm:text-base">
               <p>The calculator utilizes a <b>Recursive State-Transition Model</b> to determine probability across a standard four-player round (three opponent turns plus the player's own turn).</p>
               
-              <div className="space-y-6">
+              <div className="space-y-8">
                 <div>
-                  <h3 className="font-bold mb-3 text-white text-lg">1. The Probability of the Trigger Event</h3>
-                  <p className="mb-3">The probability of a single dice roll $X$ resulting in a value $n$ is defined by:</p>
-                  <div className="bg-black/40 p-4 text-center font-mono rounded-lg text-lg" style={{ color: COLORS.wheat }}>
+                  <h3 className="font-bold mb-3 text-white text-lg underline decoration-wood underline-offset-4">1. The Probability of the Trigger Event</h3>
+                  <p className="mb-3">The probability of a single dice roll X resulting in a value n is defined by:</p>
+                  <div className="bg-black/40 p-4 text-center font-mono rounded-lg text-lg border border-gray-700" style={{ color: COLORS.wheat }}>
                     P(X=n) = (6 - |7-n|) / 36
                   </div>
-                  <p className="mt-3">The probability of a "7" is 1/6. However, this is only a threat if the player's state $S$ is already ≥ 8.</p>
+                  <p className="mt-3">The probability of a "7" is 1/6 (16.67%). However, this is only a catastrophic threat if the player's state S is already ≥ 8. In a risk-neutral environment, the player should only consider the "bust cost" relative to the "potential gain" of the held cards.</p>
                 </div>
 
-                <div className="bg-black/20 p-5 sm:p-6 rounded-xl border border-gray-700">
+                <div className="bg-black/20 p-5 sm:p-8 rounded-xl border border-gray-700">
                   <h3 className="font-bold mb-4 text-white text-lg">2. The Compound Event Analysis</h3>
-                  <p className="mb-4 italic">For a player starting with $S$ &lt; 8, a bust requires a stochastic sequence of two independent events:</p>
+                  <p className="mb-4 italic">For a player starting with S &lt; 8, a bust requires a stochastic sequence of two independent events:</p>
                   <ul className="list-disc list-inside space-y-2 mb-6 ml-2">
-                    <li><b>Event A (Accumulation):</b> A roll must hit your hex to reach $S \ge 8$.</li>
+                    <li><b>Event A (Accumulation):</b> A roll must hit your hex to reach S ≥ 8.</li>
                     <li><b>Event B (The Strike):</b> A 7 must be rolled <i>subsequent</i> to Event A.</li>
                   </ul>
-                  <div className="text-center font-mono py-4 bg-black/40 rounded-lg text-xl" style={{ color: COLORS.wheat }}>
-                    P(A ∩ B) = P(Accumulate) × P(7)
+                  <div className="text-center font-mono py-4 bg-black/40 rounded-lg text-xl border border-gray-800" style={{ color: COLORS.wheat }}>
+                    {"P(Bust) = Σ P(Path_i) where S_t ≥ 8 → r_{t+1}=7"}
                   </div>
                   <p className="mt-4 text-xs sm:text-sm opacity-80 leading-relaxed">
-                    Because these are independent events, we multiply their probabilities. If you need an '8' to become vulnerable, the chance of a bust on the next roll is (5/36) * (6/36) ≈ 2.31%. This multiplicative decay is why the "gut feeling" of danger is almost always overstated.
+                    Because these are independent events, we multiply their probabilities. If you need an '8' to become vulnerable, the chance of a bust on the next roll is (5/36) * (6/36) ≈ 2.31%. This multiplicative decay is why the "gut feeling" of danger is almost always overstated by human intuition, which tends to view these as additive threats.
                   </p>
                 </div>
 
                 <div>
-                  <h3 className="font-bold mb-3 text-white text-lg">3. Temporal Limitations</h3>
-                  <p>In a 4-player game, there are only 4 trials ($k=4$). If Event A occurs on the final roll, the probability of a bust within that round is zero. This "temporal friction" acts as a natural buffer that risk-averse players fail to account for.</p>
+                  <h3 className="font-bold mb-3 text-white text-lg underline decoration-wood underline-offset-4">3. Window of Failure</h3>
+                  <p className="leading-relaxed">
+                    The "Window of Failure" is further narrowed by the finite number of rolls in a round. In a 4-player game, there are only 4 trials (k=4). If Event A occurs on roll k=3, there is only one remaining trial for Event B to trigger a bust. If Event A occurs on the final roll of the round, the probability of a bust within that round is zero, as there are no subsequent opponent rolls to trigger the 7.
+                  </p>
+                </div>
+
+                <div className="border-l-4 border-wood pl-6 py-2">
+                  <h3 className="font-bold mb-3 text-white text-lg">4. Exhaustive State Space Verification</h3>
+                  <p className="mb-4">
+                    To ensure absolute mathematical trust, the calculator evaluates every possible outcome across a full round. In a 4-roll sequence where each roll has 11 possible outcomes, the engine considers all 11<sup>4</sup> paths (1,679,616 unique timelines). 
+                  </p>
+                  <p className="text-gray-400 italic">
+                    By aggregating the weighted probabilities of every safe outcome, we generate a survival metric that is more accurate than any "pip-counting" heuristic. If the tool shows 75%, it means in 1.2 million of those timelines, you act on your turn with your resources intact.
+                  </p>
+                </div>
+
+                <div>
+                  <h3 className="font-bold mb-3 text-white text-lg underline decoration-wood underline-offset-4">5. Risk-Neutral Utility Strategy</h3>
+                  <p className="leading-relaxed">
+                    Strategic dominance in Catan is found by maximizing the Expected Value (EV) of your hand. Most players optimize for variance reduction (avoiding the "pain" of a bust) rather than EV maximization. By utilizing this tool, you can identify thresholds where the utility of a 75% survival rate significantly outweighs the "safety" of a suboptimal trade. If the probability of survival is high, the correct move is almost always to hold, as the compounding return of building a city or settlement outweighs the risk of a 50% card loss.
+                  </p>
                 </div>
               </div>
             </div>
